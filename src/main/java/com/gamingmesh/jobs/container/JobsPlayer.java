@@ -691,7 +691,7 @@ public class JobsPlayer {
 	honorific = builder.toString().trim();
 	if (honorific.length() > 0)
 	    honorific = org.bukkit.ChatColor.translateAlternateColorCodes('&',
-	    	Jobs.getGCManager().getModifyChatPrefix() + honorific + Jobs.getGCManager().getModifyChatSuffix());
+		Jobs.getGCManager().getModifyChatPrefix() + honorific + Jobs.getGCManager().getModifyChatSuffix());
 
     }
 
@@ -846,8 +846,15 @@ public class JobsPlayer {
 
 	for (Entry<String, QuestProgression> one : qpl.entrySet()) {
 	    QuestProgression prog = one.getValue();
-	    if (!prog.isEnded() && (type == null || type.name().equals(prog.getQuest().getAction().name())))
-		ls.add(prog.getQuest().getConfigName().toLowerCase());
+	    if (prog.isEnded())
+		continue;
+
+	    for (Entry<String, QuestObjective> oneObjective : prog.getQuest().getObjectives().entrySet()) {
+		if (type == null || type.name().equals(oneObjective.getValue().getAction().name())) {
+		    ls.add(prog.getQuest().getConfigName().toLowerCase());
+		    break;
+		}
+	    }
 	}
 
 	return ls;
@@ -899,12 +906,17 @@ public class JobsPlayer {
 
 		g.put(qp.getQuest().getConfigName(), qp);
 	    }
+
 	    if (qp.getQuest() == null) {
 		g.remove(one.getKey());
 		continue;
 	    }
-	    if (type == null || type.name().equals(qp.getQuest().getAction().name())) {
-		tmp.put(qp.getQuest().getConfigName(), qp);
+
+	    for (Entry<String, QuestObjective> oneObjective : qp.getQuest().getObjectives().entrySet()) {
+		if (type == null || type.name().equals(oneObjective.getValue().getAction().name())) {
+		    tmp.put(qp.getQuest().getConfigName(), qp);
+		    break;
+		}
 	    }
 	}
 
@@ -917,8 +929,13 @@ public class JobsPlayer {
 		QuestProgression qp = new QuestProgression(q);
 		g.put(qp.getQuest().getConfigName(), qp);
 
-		if (type == null || type.name().equals(qp.getQuest().getAction().name()))
-		    tmp.put(qp.getQuest().getConfigName(), qp);
+		for (Entry<String, QuestObjective> oneObjective : qp.getQuest().getObjectives().entrySet()) {
+		    if (type == null || type.name().equals(oneObjective.getValue().getAction().name())) {
+			tmp.put(qp.getQuest().getConfigName(), qp);
+			break;
+		    }
+		}
+
 	    }
 	}
 

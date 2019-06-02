@@ -175,16 +175,18 @@ public class Jobs extends JavaPlugin {
 	try {
 	    Class.forName("com.gmail.nossr50.datatypes.skills.SuperAbilityType");
 	    getServer().getPluginManager().registerEvents(new McMMO2_X_listener(this), this);
+	    consoleMsg("&e[Jobs] Registered McMMO 2.x listener");
 	} catch (Throwable e) {
 	    getServer().getPluginManager().registerEvents(new McMMO1_X_listener(this), this);
+	    consoleMsg("&e[Jobs] Registered McMMO 1.x listener");
 	}
     }
 
     /**
-    * Gets the McMMO Listener
+    * Gets the {@link #McMMOManager} file
     * 
-    * @return McMMO Listener
-    * @deprecated Use the getMcMMOManager()
+    * @return McMMO Manager
+    * @deprecated Use instead {@link #getMcMMOManager()}
     */
     @Deprecated
     public static McMMOManager getMcMMOlistener() {
@@ -228,13 +230,13 @@ public class Jobs extends JavaPlugin {
 	if (!getServer().getPluginManager().isPluginEnabled("PlaceholderAPI"))
 	    return false;
 	if (getVersionCheckManager().convertVersion(getServer().getPluginManager()
-		    .getPlugin("PlaceholderAPI").getDescription().getVersion()) >= getVersionCheckManager().convertVersion("2.10.0")) {
+	    .getPlugin("PlaceholderAPI").getDescription().getVersion()) >= getVersionCheckManager().convertVersion("2.10.0")) {
 	    if ((new NewPlaceholderAPIHook(this)).register())
 		consoleMsg("&e[Jobs] PlaceholderAPI hooked.");
 	} else {
 	    if ((new PlaceholderAPIHook(this)).hook())
 		consoleMsg("&e[Jobs] PlaceholderAPI hooked. This is a deprecated version. In the PlaceholderAPI"
-			+ " new version has removed the extension and we using the latest.");
+		    + " new version has removed the extension and we using the latest.");
 	}
 	return true;
     }
@@ -913,7 +915,8 @@ public class Jobs extends JavaPlugin {
 
     @Override
     public void onDisable() {
-	if (instance == null) return;
+	if (instance == null)
+	    return;
 
 	try {
 	    GUIManager.CloseInventories();
@@ -1187,7 +1190,7 @@ public class Jobs extends JavaPlugin {
 		}
 
 		if (prog.addExperience(expAmount))
-			getPlayerManager().performLevelUp(jPlayer, prog.getJob(), oldLevel);
+		    getPlayerManager().performLevelUp(jPlayer, prog.getJob(), oldLevel);
 	    }
 
 	    //need to update bp
@@ -1339,7 +1342,7 @@ public class Jobs extends JavaPlugin {
 	}
 
 	if (prog.addExperience(payment.getExp()))
-		getPlayerManager().performLevelUp(jPlayer, prog.getJob(), oldLevel);
+	    getPlayerManager().performLevelUp(jPlayer, prog.getJob(), oldLevel);
     }
 
     public static void consoleMsg(String msg) {
@@ -1351,19 +1354,20 @@ public class Jobs extends JavaPlugin {
     }
 
     public static boolean hasPermission(Object sender, String perm, boolean rawEnable) {
-	if (sender instanceof Player) {
-	    if (((Player) sender).hasPermission(perm))
-		return true;
-	    if (!rawEnable) {
-		((Player) sender).sendMessage(lManager.getMessage("general.error.permission"));
-		return false;
-	    }
-	    RawMessage rm = new RawMessage();
-	    rm.add(lManager.getMessage("general.error.permission"), "&2" + perm);
-	    rm.show((Player) sender);
+	if (!(sender instanceof Player))
+	    return true;
+
+	if (((Player) sender).hasPermission(perm))
+	    return true;
+	if (!rawEnable) {
+	    ((Player) sender).sendMessage(lManager.getMessage("general.error.permission"));
 	    return false;
 	}
-	return true;
+	RawMessage rm = new RawMessage();
+	rm.add(lManager.getMessage("general.error.permission"), "&2" + perm);
+	rm.show((Player) sender);
+	return false;
+
     }
 
     public void ShowPagination(CommandSender sender, PageInfo pi, String cmd) {

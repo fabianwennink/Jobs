@@ -104,17 +104,15 @@ Jobs:
       # Quest identification. Can be any ONE word or number or both of them. This doesn't have any real meaning but it can't repeat.
       1:
         # Quest name used for quests list, don't forget to enclose it with " "
-        Name: "Break Oak wood"
-        # Quest action can be any valid job action. Look at lower for all possible action types
-        Action: Break
-        # Target id or name. Comes in same format as it is for regular job action
-        # You can use only string or list to add more items in one quest
-        Target: "17-0"
-        # Target:
-        # - "17-0"
-        # - stone
-        # Amount of actions players should perform to complete this quest
-        Amount: 300
+        Name: "Break Oak wood"  
+        # List of objectives this quest will require for it to count as finished
+        # you can have as many objectives as you want
+        Objectives:
+        # This should be in a format as [actionType];[actionTarget];[amount]
+        # [actionType] can be any valid job action. Look lower for all possible action types
+        # [actionTarget] can be material name, block type, entity name and so on. This is defined in same way as any generic payable job action
+        # [amount] is how many times player should perform this action to complete quest
+        - Break;17-0;300
         # Command list to be performed after quest is finished.
         # Use [playerName] to insert players name who finished that quest
         RewardCommands:
@@ -131,15 +129,14 @@ Jobs:
         # Defines to which job level you want to give out this quest. 
         # Keep in mind that player will keep quest even if he is over level limit if he got new one while being under
         # In example: player with level 2 takes quests and levels up to level 5, he still can finish this quest and after next quest reset (check general config file) he will no longer have option to get this quest
-        toLevel: 3
+        toLevel: 5
         # Defines from which level you want to give option to get this quest
         # You can use both limitations to have limited quests for particular job level ranges
-        fromLevel: 5
+        fromLevel: 3
       2:
         Name: "Zombie killer"
-        Action: Kill
-        Target: Zombie
-        Amount: 50
+        Objectives:
+        - Kill;Zombie;50
         RewardCommands:
         - "money give [playerName] 2000"
         - "msg [playerName] Completed quest!"
@@ -148,9 +145,8 @@ Jobs:
         - "Get 2000 for this!"
       3:
         Name: "Chicken cooker"
-        Action: Smelt
-        Target: "COOKED_CHICKEN"
-        Amount: 20
+        Objectives:
+        - "Smelt;COOKED_CHICKEN;20"
         RewardCommands:
         - "money give [playerName] 300"
         - "msg [playerName] Completed quest!"
@@ -159,15 +155,13 @@ Jobs:
         - "Get 300 for this!"
       4:
         Name: "Strip logs"
-        Action: StripLogs
-        Target:
-        - stripped_birch_log
-        - stripped_acacia_log
-        Amount: 50
+        Objectives:
+        - "StripLogs;stripped_birch_log;25"
+        - "StripLogs;stripped_acacia_log;25"
         RewardCommands:
         - "msg [playerName] Completed quest!"
         RewardDesc:
-        - "Strip 50 birch and acacia logs!"
+        - "Strip 25 birch and acacia logs each!"
     ########################################################################
     # Section used to configure what items the job gets paid for, how much
     # they get paid and how much experience they gain.
@@ -575,7 +569,21 @@ Jobs:
     income-progression-equation: baseincome+(baseincome*(joblevel-1)*0.01)-((baseincome+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
-    rejoinCooldown: 10
+    rejoinCooldown: 10    
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Woodpecker"
+        Objectives:
+        - Break;oak_log;50
+        - Break;birch_log;50
+        - Break;jungle_log;50
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Break logs and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 17
       Data: 2
@@ -679,6 +687,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "DarkOne"
+        Objectives:
+        - Break;stone;50
+        - Break;granite;50
+        - Break;sandstone;50
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Break blocks and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 270
       Data: 0
@@ -861,6 +883,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Architect"
+        Objectives:
+        - Place;spruce_planks;50
+        - Place;birch_planks;50
+        - Place;wool;50
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Place blocks and get money"
+        - "Get 100 for this!"
     Gui:
       Item: brick_stairs
     Place:
@@ -1603,6 +1639,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Ground Mole"
+        Objectives:
+        - Break;dirt;50
+        - Break;grass_block;50
+        - Break;gravel;50
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Dig blocks and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 269
       Data: 0
@@ -1658,6 +1708,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Regular Joe"
+        Objectives:
+        - Breed;Sheep;10
+        - Shear;White;10
+        - Milk;Cow;3
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Be a farmer and get money"
+        - "Get 100 for this!"
     Gui:
       Item: wooden_hoe
     Tame:
@@ -2037,6 +2101,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Predator"
+        Objectives:
+        - Kill;Wolf;10
+        - Kill;Creeper;3
+        - Kill;Skeleton;10
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Kill everything what moves and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 261
       Data: 0
@@ -2182,6 +2260,18 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Galileo"
+        Objectives:
+        - Explore;1;30
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Go on a trip and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 301
       Data: 0
@@ -2222,6 +2312,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Master Crafter"
+        Objectives:
+        - Craft;dispenser;10
+        - Craft;chest;10
+        - Craft;ladder;30
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Craft and get money"
+        - "Get 100 for this!"
     Gui:
       Item: crafting_table
     Craft:
@@ -2759,6 +2863,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Catcher"
+        Objectives:
+        - Fish;cod;2
+        - Fish;salmon;2
+        - Fish;tropical_fish;2
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Catch fish and get money"
+        - "Get 100 for this!"
     Gui:
       Item: fishing_rod
     Fish:
@@ -2795,6 +2913,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "War never ends"
+        Objectives:
+        - Craft;wooden_sword;2
+        - Craft;iron_chestplate;2
+        - Craft;gold_leggings;2
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Craft weapons and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 58
       Data: 0
@@ -2933,6 +3065,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Heavy drinker"
+        Objectives:
+        - Brew;glowstone_dust;2
+        - Brew;redstone;2
+        - Brew;sugar;2
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Brew some stuff and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 379
       Data: 0
@@ -3018,6 +3164,20 @@ Jobs:
     points-progression-equation: basepoints+(basepoints*(joblevel-1)*0.01)-((basepoints+(joblevel-1)*0.01) * ((numjobs-1)*0.05))
     experience-progression-equation: baseexperience-(baseexperience*((numjobs-1) *0.01))
     rejoinCooldown: 10
+    maxDailyQuests: 1    
+    Quests:
+      1:
+        Name: "Harry the wizard"
+        Objectives:
+        - Enchant;wood_sword;1
+        - Enchant;diamond_sword;1
+        - Enchant;ARROW_DAMAGE;1
+        RewardCommands:
+        - "money give [playerName] 100"
+        - "msg [playerName] Completed quest!"
+        RewardDesc:
+        - "Be a wizard and get money"
+        - "Get 100 for this!"
     Gui:
       Id: 116
       Data: 0
@@ -3114,417 +3274,69 @@ Jobs:
         income: 6.0
         points: 6.0
         experience: 30.0
-      #Power
-      ARROW_DAMAGE-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      ARROW_DAMAGE-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      ARROW_DAMAGE-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      ARROW_DAMAGE-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      ARROW_DAMAGE-5:
-        income: 50.0
-        points: 50.0
-        experience: 50.0
-      #Flame
-      ARROW_FIRE:
-        income: 10.0
-        points: 10.0
-        experience: 30.0
-      #Infinity
-      ARROW_INFINITE:
-        income: 20.0
-        points: 20.0
-        experience: 50.0
-      #Punch
-      ARROW_KNOCKBACK-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      ARROW_KNOCKBACK-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      #Sharpness
-      DAMAGE_ALL-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DAMAGE_ALL-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DAMAGE_ALL-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      DAMAGE_ALL-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      DAMAGE_ALL-5:
-        income: 50.0
-        points: 50.0
-        experience: 50.0
-      #Bane of Arthropods
-      DAMAGE_ARTHROPODS-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DAMAGE_ARTHROPODS-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DAMAGE_ARTHROPODS-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      DAMAGE_ARTHROPODS-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      DAMAGE_ARTHROPODS-5:
-        income: 50.0
-        points: 50.0
-        experience: 50.0
-      #Smite
-      DAMAGE_UNDEAD-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DAMAGE_UNDEAD-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DAMAGE_UNDEAD-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      DAMAGE_UNDEAD-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      DAMAGE_UNDEAD-5:
-        income: 50.0
-        points: 50.0
-        experience: 50.0
-      DEPTH_STRIDER-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DEPTH_STRIDER-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DEPTH_STRIDER-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      #Efficiency
-      DIG_SPEED-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DIG_SPEED-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DIG_SPEED-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      DIG_SPEED-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      DIG_SPEED-5:
-        income: 50.0
-        points: 50.0
-        experience: 50.0
-      #Unbreaking
-      DURABILITY-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      DURABILITY-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      DURABILITY-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      FIRE_ASPECT-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      FIRE_ASPECT-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      KNOCKBACK-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      KNOCKBACK-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      #Fortune
-      LOOT_BONUS_BLOCKS-1:
-        income: 20.0
-        points: 20.0
-        experience: 100.0
-      LOOT_BONUS_BLOCKS-2:
-        income: 40.0
-        points: 40.0
-        experience: 200.0
-      LOOT_BONUS_BLOCKS-3:
-        income: 80.0
-        points: 80.0
-        experience: 300.0
-      #Looting
-      LOOT_BONUS_MOBS-1:
-        income: 10.0
-        points: 10.0
-        experience: 20.0
-      LOOT_BONUS_MOBS-2:
-        income: 20.0
-        points: 20.0
-        experience: 40.0
-      LOOT_BONUS_MOBS-3:
-        income: 30.0
-        points: 30.0
-        experience: 60.0
-      #Luck of the Sea
-      LUCK-1:
-        income: 15.0
-        points: 15.0
-        experience: 10.0
-      LUCK-2:
-        income: 25.0
-        points: 25.0
-        experience: 20.0
-      LUCK-3:
-        income: 35.0
-        points: 35.0
-        experience: 30.0
-      LURE-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      LURE-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      LURE-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      #Respiration
-      OXYGEN-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      OXYGEN-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      OXYGEN-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      #Protection
-      PROTECTION_ENVIRONMENTAL-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      PROTECTION_ENVIRONMENTAL-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      PROTECTION_ENVIRONMENTAL-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      PROTECTION_ENVIRONMENTAL-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      #Blast Protection
-      PROTECTION_EXPLOSIONS-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      PROTECTION_EXPLOSIONS-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      PROTECTION_EXPLOSIONS-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      PROTECTION_EXPLOSIONS-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      #Feather Falling
-      PROTECTION_FALL-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      PROTECTION_FALL-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      PROTECTION_FALL-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      PROTECTION_FALL-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      #Fire Protection
-      PROTECTION_FIRE-1:
-        income: 5.0
-        points: 5.0
-        experience: 10.0
-      PROTECTION_FIRE-2:
-        income: 10.0
-        points: 10.0
-        experience: 20.0
-      PROTECTION_FIRE-3:
-        income: 20.0
-        points: 20.0
-        experience: 30.0
-      PROTECTION_FIRE-4:
-        income: 30.0
-        points: 30.0
-        experience: 40.0
-      PROTECTION_PROJECTILE-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      PROTECTION_PROJECTILE-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      PROTECTION_PROJECTILE-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      PROTECTION_PROJECTILE-4:
-        income: 40.0
-        points: 40.0
-        experience: 40.0
-      SILK_TOUCH:
-        income: 100.0
-        points: 100.0
-        experience: 300.0
-      THORNS-1:
-        income: 10.0
-        points: 10.0
-        experience: 10.0
-      THORNS-2:
-        income: 20.0
-        points: 20.0
-        experience: 20.0
-      THORNS-3:
-        income: 30.0
-        points: 30.0
-        experience: 30.0
-      #Aqua Affinity
-      WATER_WORKER:
-        income: 30.0
-        points: 30.0
-        experience: 100.0
-      #1.13 enchantments
-      channeling:
-        income: 10
-        points: 10
-        experience: 10
-      #Curse of Binding
-      binding_curse:
-        income: 5
-        points: 5
-        experience: 5
-      #Curse of Vanishing
-      vanishing_curse:
-        income: 5
-        points: 5
-        experience: 5
-      frost_walker-1:
-        income: 10
-        points: 10
-        experience: 10
-      frost_walker-2:
-        income: 20
-        points: 20
-        experience: 20
-      impaling-1:
-        income: 10
-        points: 10
-        experience: 10
-      impaling-2:
-        income: 20
-        points: 20
-        experience: 20
-      impaling-3:
-        income: 30
-        points: 30
-        experience: 30
-      impaling-4:
-        income: 40
-        points: 40
-        experience: 40
-      impaling-5:
-        income: 50
-        points: 50
-        experience: 50
-      loyalty-1:
-        income: 10
-        points: 10
-        experience: 10
-      loyalty-2:
-        income: 20
-        points: 20
-        experience: 20
-      loyalty-3:
-        income: 30
-        points: 30
-        experience: 30
-      mending:
-        income: 10
-        points: 10
-        experience: 10
-      riptide:
-        income: 20
-        points: 20
-        experience: 20
-      sweeping_edge:
-        income: 15
-        points: 15
-        experience: 15
-      multishot:
-        income: 5
-        points: 5
-      piercing:
-        income: 7
-        points: 5
-        experience: 11
-      quick_charge:
-        income: 6
-        points: 4
+      # 1.13+: power
+      # 1.12 and under: arrow_damage
+      #power-1:
+      #  income: 10.0
+      #  points: 10.0
+      #  experience: 10.0
+      #arrow_damage-2:
+      #  income: 20.0
+      # 1.13+: flame
+      # 1.12 and under: arrow_fire
+      #arrow_fire:
+      #  income: 10.0
+      #  points: 10.0
+      #  experience: 30.0
+      # 1.13+: infinity
+      # 1.12 and under: arrow_infinite
+      #arrow_infinite:
+      #  income: 20.0
+      #  points: 20.0
+      #  experience: 50.0
+      # 1.13+: punch
+      # 1.12 and under: arrow_knockback
+      #punch-2:
+      #  income: 20.0
+      #  points: 20.0
+      #  experience: 20.0
+      # 1.13+: sharpness
+      # 1.12 and under: damage_all
+      #damage_all-5:
+      #  income: 50.0
+      #  points: 50.0
+      #  experience: 50.0
+      # 1.13+: bane_of_arthropods
+      # 1.12 and under: damage_arthropods
+      #damage_arthropods-4:
+      #  income: 40.0
+      #  points: 40.0
+      #  experience: 40.0
+      # 1.13+: smite
+      # 1.12 under: damage_undead
+      #damage_undead-1:
+      #  income: 10.0
+      #  points: 10.0
+      #depth_strider-3:
+      #  income: 30.0
+      #  points: 30.0
+      #  experience: 30.0
+      # 1.13+: efficiency
+      # 1.12 under: dig_speed
+      #efficiency-5:
+      #  income: 50.0
+      #  points: 50.0
+      #  experience: 50.0
+      # 1.13+: unbreaking
+      # 1.12 under: durability
+      #durability-1:
+      #  income: 10.0
+      #  points: 10.0
+      #  experience: 10.0
+      #fire_aspect-2:
+      #  income: 20.0
+      #  points: 20.0
+      #  experience: 20.0
   None:
     fullname: None
     shortname: N
