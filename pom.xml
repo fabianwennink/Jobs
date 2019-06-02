@@ -64,9 +64,9 @@
 		<dependency>
 			<groupId>io.lumine.xikage.mythicmobs</groupId>
 			<artifactId>MythicMobs</artifactId>
-			<version>4.5.5</version>
+			<version>4.5.9</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libs/MythicMobs-4.5.5.jar</systemPath>
+			<systemPath>${basedir}/libs/MythicMobs-4.5.9.jar</systemPath>
 		</dependency>
 		<!-- WorldGuard old version -->
 		<dependency>
@@ -187,7 +187,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<outputDirectory>C:\Users\Arte\Desktop\Server 1.14\plugins</outputDirectory>
+					<outputDirectory>D:\Downloads\</outputDirectory>
 				</configuration>
 			</plugin>
 		</plugins>

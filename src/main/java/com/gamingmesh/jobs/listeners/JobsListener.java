@@ -129,12 +129,6 @@ public class JobsListener implements Listener {
 	return false;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onJoin(PlayerJoinEvent event) {
-	if (Jobs.getGCManager().isShowNewVersion() && event.getPlayer().hasPermission("jobs.versioncheck"))
-	    Jobs.getVersionCheckManager().VersionCheck(event.getPlayer());
-    }
-
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onSelection(PlayerInteractEvent event) {
 	Player player = event.getPlayer();

@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import com.gamingmesh.jobs.stuff.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -38,6 +40,7 @@ import com.gamingmesh.jobs.container.CurrencyLimit;
 import com.gamingmesh.jobs.container.CurrencyType;
 import com.gamingmesh.jobs.container.Schedule;
 import com.gamingmesh.jobs.resources.jfep.Parser;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class GeneralConfigManager {
     private Jobs plugin;
@@ -113,7 +116,7 @@ public class GeneralConfigManager {
     private String DecimalPlacesMoney, DecimalPlacesExp, DecimalPlacesPoints;
 
     public ItemStack guiBackButton;
-    public ItemStack guiFiller;
+	public ItemStack guiWhiteFiller, guiOrangeFiller, guiYellowFiller;
 
     public int JobsTopAmount;
 
@@ -919,8 +922,31 @@ public class GeneralConfigManager {
 	tmat = CMIMaterial.get(c.get("JobsGUI.BackButton.Material", "JACK_O_LANTERN"));
 	guiBackButton = tmat == null ? CMIMaterial.JACK_O_LANTERN.newItemStack() : tmat.newItemStack();
 
-	tmat = CMIMaterial.get(c.get("JobsGUI.Filler.Material", "GREEN_STAINED_GLASS_PANE"));
-	guiFiller = tmat == null ? CMIMaterial.GREEN_STAINED_GLASS_PANE.newItemStack() : tmat.newItemStack();
+	// ------------- CUSTOM -------------
+
+	guiWhiteFiller = new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1);
+	guiYellowFiller = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 1);
+	guiOrangeFiller = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE, 1);
+
+	ItemMeta guiFillerMeta = guiWhiteFiller.getItemMeta();
+	if(guiFillerMeta != null) {
+		guiFillerMeta.setDisplayName(ChatColor.DARK_GRAY + " ");
+		guiWhiteFiller.setItemMeta(guiFillerMeta);
+	}
+
+	guiFillerMeta = guiYellowFiller.getItemMeta();
+	if(guiFillerMeta != null) {
+		guiFillerMeta.setDisplayName(ChatColor.DARK_GRAY + " ");
+		guiYellowFiller.setItemMeta(guiFillerMeta);
+	}
+
+	guiFillerMeta = guiOrangeFiller.getItemMeta();
+	if(guiFillerMeta != null) {
+		guiFillerMeta.setDisplayName(ChatColor.DARK_GRAY + " ");
+		guiOrangeFiller.setItemMeta(guiFillerMeta);
+	}
+
+	// ------------- CUSTOM -------------
 
 //	c.addComment("Schedule.Boost.Enable", "Do you want to enable scheduler for global boost?");
 //	useGlobalBoostScheduler = c.get("Schedule.Boost.Enable", false);

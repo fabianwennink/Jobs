@@ -27,7 +27,11 @@ public class GuiManager {
 
     public HashMap<UUID, GuiInfoList> GuiList = new HashMap<>();
 
-    public void CloseInventories() {
+	private List<Integer> whiteList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53);
+	private List<Integer> yellowList = Arrays.asList(9, 17, 18, 26, 27, 35, 36, 44);
+	private List<Integer> orangeList = Arrays.asList(9, 17, 18, 26, 27, 35, 36, 44);
+
+	public void CloseInventories() {
 	for (Entry<UUID, GuiInfoList> one : GuiList.entrySet()) {
 	    Player player = Bukkit.getPlayer(one.getKey());
 	    if (player != null) {
@@ -110,9 +114,12 @@ public class GuiManager {
 
 	    ArrayList<String> Lore = new ArrayList<>();
 
+		Lore.add(""); // Empty line
+
 	    for (JobProgression onePJob : pJobs) {
 		if (onePJob.getJob().getName().equalsIgnoreCase(job.getName()))
 		    Lore.add(Jobs.getLanguage().getMessage("command.info.gui.working"));
+			Lore.add("");
 	    }
 
 	    int maxlevel = job.getMaxLevel(JPlayer);
@@ -149,7 +156,11 @@ public class GuiManager {
 	    ItemStack GuiItem = job.getGuiItem();
 
 	    ItemMeta meta = GuiItem.getItemMeta();
-	    meta.setDisplayName(job.getChatColor() + job.getName());
+
+		String name = job.getName().toLowerCase();
+		String lowerName = name.substring(0, 1).toUpperCase() + name.substring(1);
+
+		meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "" + lowerName);
 	    meta.setLore(Lore);
 	    GuiItem.setItemMeta(meta);
 
@@ -160,17 +171,10 @@ public class GuiManager {
 
 	}
 
-	ItemStack filler = Jobs.getGCManager().guiFiller;
+		styleInventory(GuiInv, GuiInv.getSize());
 
-	if (filler != null && filler.getType() != Material.AIR)
-	    for (int y = 0; y < GuiInv.getSize(); y++) {
-		ItemStack item = GuiInv.getItem(y);
-		if (item == null || item.getType() == Material.AIR) {
-		    GuiInv.setItem(y, filler);
-		}
-	    }
-	guiInfo.setInv(GuiInv);
-	return GuiInv;
+		guiInfo.setInv(GuiInv);
+		return GuiInv;
     }
 
     public Inventory CreateJobsSubGUI(Player player, Job job) {
@@ -239,8 +243,11 @@ public class GuiManager {
 		    if (z == info.size() - 1)
 			continue;
 		    ItemMeta meta = GuiItem.getItemMeta();
-		    meta.setDisplayName(job.getChatColor() + job.getName());
-		    meta.setLore(Lore);
+			String name = job.getName().toLowerCase();
+			String lowerName = name.substring(0, 1).toUpperCase() + name.substring(1);
+
+			meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "" + lowerName);
+			meta.setLore(Lore);
 		    GuiItem.setItemMeta(meta);
 		    //GuiInv.setItem(i, GuiItem);
 		    tempInv.setItem(i, GuiItem);
@@ -252,9 +259,13 @@ public class GuiManager {
 		}
 		y++;
 	    }
-	    ItemMeta meta = GuiItem.getItemMeta();
-	    meta.setDisplayName(job.getChatColor() + job.getName());
-	    meta.setLore(Lore);
+		ItemMeta meta = GuiItem.getItemMeta();
+
+		String name = job.getName().toLowerCase();
+		String lowerName = name.substring(0, 1).toUpperCase() + name.substring(1);
+
+		meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "" + lowerName);
+		meta.setLore(Lore);
 	    GuiItem.setItemMeta(meta);
 	    //GuiInv.setItem(i, GuiItem);
 	    tempInv.setItem(i, GuiItem);
@@ -280,8 +291,13 @@ public class GuiManager {
 	    title = title.substring(0, 30) + "..";
 	Inventory GuiInv = Bukkit.createInventory(null, GuiSize, title);
 
+	styleInventory(GuiInv, GuiInv.getSize());
+
+	int pos = 0;
 	for (int i1 = 0; i1 < items.size(); i1++) {
-	    GuiInv.setItem(i1, items.get(i1));
+		if(i1 % 7 == 0 && i1 != 0) pos += 2;
+
+		GuiInv.setItem((i1 + 10) + pos, items.get(i1));
 	}
 
 	ItemStack skull = Jobs.getGCManager().guiBackButton;
@@ -298,14 +314,54 @@ public class GuiManager {
 	guiInfo.setbackButton(backButton);
 	GuiList.put(player.getUniqueId(), guiInfo);
 
-	ItemStack filler = Jobs.getGCManager().guiFiller;
+		// Back button
+		ItemStack backbutton = Jobs.getGCManager().guiBackButton;
 
-	for (int y = 0; y < GuiInv.getSize(); y++) {
-	    ItemStack item = GuiInv.getItem(y);
-	    if (item == null || item.getType() == Material.AIR)
-		GuiInv.setItem(y, filler);
-	}
+		ItemMeta backbuttonMeta = backbutton.getItemMeta();
+		backbuttonMeta.setDisplayName(Jobs.getLanguage().getMessage("command.info.gui.back"));
+
+		backbutton.setItemMeta(backbuttonMeta);
+
+		GuiInv.setItem(backButton, backbutton);
 
 	return GuiInv;
     }
+
+	/**
+	 * Fills the border of the given inventory with the glass placeholders.
+	 *
+	 * @param inventory The inventory.
+	 * @param inventorySize The inventory size.
+	 */
+	public static void styleInventory(Inventory inventory, int inventorySize) {
+		int rows = inventorySize / 9;
+
+		// Top line of the inventory.
+		for(int slot = 0; slot < 9; slot++) {
+			if(slot < 2 || slot > 6) {
+				inventory.setItem(slot, Jobs.getGCManager().guiOrangeFiller);
+			} else {
+				inventory.setItem(slot, Jobs.getGCManager().guiYellowFiller);
+			}
+		}
+
+		// Bottom line of the inventory.
+		for(int slot = (inventorySize - 9); slot < inventorySize; slot++) {
+			if(slot < (inventorySize - 7) || slot > (inventorySize - 3)) {
+				inventory.setItem(slot, Jobs.getGCManager().guiOrangeFiller);
+			} else {
+				inventory.setItem(slot, Jobs.getGCManager().guiYellowFiller);
+			}
+		}
+
+		// Lef, right and middle lines of the inventory.
+		for(int row = 1; row < rows - 1; row++) {
+			int leftSlot = 9 * row;
+			int rightSlot = leftSlot + 8;
+
+			// Left and right
+			inventory.setItem(leftSlot, Jobs.getGCManager().guiWhiteFiller);
+			inventory.setItem(rightSlot, Jobs.getGCManager().guiWhiteFiller);
+		}
+	}
 }
