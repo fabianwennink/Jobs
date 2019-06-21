@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,10 +25,6 @@ import com.gamingmesh.jobs.container.JobsPlayer;
 public class GuiManager {
 
     public HashMap<UUID, GuiInfoList> GuiList = new HashMap<>();
-
-    private List<Integer> whiteList = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53);
-    private List<Integer> yellowList = Arrays.asList(9, 17, 18, 26, 27, 35, 36, 44);
-    private List<Integer> orangeList = Arrays.asList(9, 17, 18, 26, 27, 35, 36, 44);
 
     public void CloseInventories() {
         for (Entry<UUID, GuiInfoList> one : GuiList.entrySet()) {
@@ -115,10 +110,14 @@ public class GuiManager {
 
             ArrayList<String> Lore = new ArrayList<>();
 
+            // Just below the display name
+            Lore.add("");
+
             for (JobProgression onePJob : pJobs) {
-                if (onePJob.getJob().getName().equalsIgnoreCase(job.getName()))
+                if (onePJob.getJob().getName().equalsIgnoreCase(job.getName())) {
                     Lore.add(Jobs.getLanguage().getMessage("command.info.gui.working"));
-                Lore.add("");
+                    Lore.add("");
+                }
             }
 
             int maxlevel = job.getMaxLevel(JPlayer);
@@ -140,15 +139,15 @@ public class GuiManager {
                 Lore.add(Jobs.getLanguage().getMessage("command.info.gui.leftSlots") + ((job.getMaxSlots() - Jobs.getUsedSlots(job)) > 0 ? (job.getMaxSlots() - Jobs
                     .getUsedSlots(job)) : 0));
 
-            Lore.add(Jobs.getLanguage().getMessage("command.info.gui.actions"));
-            for (ActionType actionType : ActionType.values()) {
-                List<JobInfo> info = job.getJobInfo(actionType);
-                if (info != null && !info.isEmpty()) {
-                    Lore.add(Jobs.getLanguage().getMessage("command.info.output." + actionType.getName().toLowerCase() + ".info"));
-                }
-            }
+//            Lore.add(Jobs.getLanguage().getMessage("command.info.gui.actions"));
+//            for (ActionType actionType : ActionType.values()) {
+//                List<JobInfo> info = job.getJobInfo(actionType);
+//                if (info != null && !info.isEmpty()) {
+//                    Lore.add(Jobs.getLanguage().getMessage("command.info.output." + actionType.getName().toLowerCase() + ".info"));
+//                }
+//            }
 
-            Lore.add("");
+//            Lore.add("");
             Lore.add(Jobs.getLanguage().getMessage("command.info.gui.leftClick"));
             Lore.add(Jobs.getLanguage().getMessage("command.info.gui.rightClick"));
 
