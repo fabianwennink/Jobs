@@ -53,6 +53,7 @@ public class GeneralConfigManager {
     protected boolean payInCreative;
     protected boolean payExploringWhenFlying;
     public boolean payExploringWhenGliding;
+    public boolean disablePaymentIfRiding;
     protected boolean addXpPlayer;
     public boolean payItemDurabilityLoss;
     protected boolean hideJobsWithoutPermission;
@@ -102,10 +103,15 @@ public class GeneralConfigManager {
     public boolean useBreederFinder = false;
     private boolean useTnTFinder = false;
     public boolean CancelCowMilking;
-    public boolean fixAtMaxLevel, ToggleActionBar, TitleChangeChat, TitleChangeActionBar, LevelChangeChat,
+    public boolean fixAtMaxLevel, TitleChangeChat, TitleChangeActionBar, LevelChangeChat,
 	LevelChangeActionBar, SoundLevelupUse, SoundTitleChangeUse, UseServerAccount, EmptyServerAccountChat,
 	EmptyServerAccountActionBar, ActionBarsMessageByDefault, ShowTotalWorkers, ShowPenaltyBonus, useDynamicPayment,
 	JobsGUIOpenOnBrowse, JobsGUIShowChatBrowse, JobsGUISwitcheButtons, JobsGUIOpenOnJoin;
+
+    public boolean FireworkLevelupUse, UseRandom, UseFlicker, UseTrail;
+    public String FireworkType;
+    public List<String> FwColors = new ArrayList<>();
+    public int FireworkPower, ShootTime;
 
     private int JobsGUIRows, JobsGUIBackButton,
 	JobsGUIStartPosition,
@@ -282,14 +288,32 @@ public class GeneralConfigManager {
 	return modifyChat;
     }
 
+    /**
+     * Get the chat prefix string from file
+     * @deprecated Use {@link #modifyChatPrefix}
+     * @return
+     */
+    @Deprecated
     public String getModifyChatPrefix() {
 	return modifyChatPrefix;
     }
 
+    /**
+     * Get the chat suffix string from file
+     * @deprecated Use {@link #modifyChatSuffix}
+     * @return
+     */
+    @Deprecated
     public String getModifyChatSuffix() {
 	return modifyChatSuffix;
     }
 
+    /**
+     * Get the chat separator string from file
+     * @deprecated Use {@link #modifyChatSeparator}
+     * @return
+     */
+    @Deprecated
     public String getModifyChatSeparator() {
 	return modifyChatSeparator;
     }
@@ -527,6 +551,9 @@ public class GeneralConfigManager {
 	    c.addComment("enable-pay-for-exploring-when-gliding", "Option to allow payment to be made for exploring when player gliding.");
 	    payExploringWhenGliding = c.get("enable-pay-for-exploring-when-gliding", false);
 	}
+
+	c.addComment("disablePaymentIfRiding", "Disables the payment when the player riding on an entity.");
+	disablePaymentIfRiding = c.get("disablePaymentIfRiding", false);
 
 	c.addComment("add-xp-player", "Adds the Jobs xp received to the player's Minecraft XP bar");
 	addXpPlayer = c.get("add-xp-player", false);
@@ -868,6 +895,21 @@ public class GeneralConfigManager {
 	SoundTitleChangeSound = c.get("Sounds.TitleChange.sound", Jobs.getVersionCheckManager().getVersion().isLower(Version.v1_9_R1) ? "LEVEL_UP " : "ENTITY_PLAYER_LEVELUP");
 	SoundTitleChangeVolume = c.get("Sounds.TitleChange.volume", 1);
 	SoundTitleChangePitch = c.get("Sounds.TitleChange.pitch", 3);
+
+	c.addComment("Fireworks", "Extra firework shooting in some events");
+	FireworkLevelupUse = c.get("Fireworks.LevelUp.use", false);
+	c.addComment("Fireworks.LevelUp.Random", "Makes the firework to randomize, such as random colors, type, power and so on.",
+	    "These are under settings will not be work, when this enabled.");
+	UseRandom = c.get("Fireworks.LevelUp.Random", true);
+	UseFlicker = c.get("Fireworks.LevelUp.flicker", true);
+	UseTrail = c.get("Fireworks.LevelUp.trail", true);
+	c.addComment("Fireworks.LevelUp.type", "Firework types",
+	    "All types can be found in https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/FireworkEffect.Type.html");
+	FireworkType = c.get("Fireworks.LevelUp.type", "STAR");
+	FwColors = c.get("Fireworks.LevelUp.colors", Arrays.asList("230,0,0", "0,90,0", "0,0,104"));
+	FireworkPower = c.get("Fireworks.LevelUp.power", 1);
+	c.addComment("Fireworks.LevelUp.ShootTime", "Fire shooting time in ticks.", "Example: 20 tick = 1 second");
+	ShootTime = c.get("Fireworks.LevelUp.ShootTime", 20);
 
 	c.addComment("Signs", "You can disable this to save SMALL amount of server resources");
 	SignsEnabled = c.get("Signs.Enable", true);

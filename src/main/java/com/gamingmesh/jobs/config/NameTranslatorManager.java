@@ -11,6 +11,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 
 import com.gamingmesh.jobs.Jobs;
+import com.gamingmesh.jobs.CMILib.CMIEnchantment;
 import com.gamingmesh.jobs.CMILib.ConfigReader;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIEntityType;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIMaterial;
@@ -22,7 +23,7 @@ import com.gamingmesh.jobs.stuff.Util;
 
 public class NameTranslatorManager {
 
-    public ArrayList<NameList> ListOfNames = new ArrayList<>();
+    public HashMap<CMIMaterial, NameList> ListOfNames = new HashMap<>();
     public ArrayList<NameList> ListOfPotionNames = new ArrayList<>();
     public ArrayList<NameList> ListOfEntities = new ArrayList<>();
     public HashMap<String, NameList> ListOfEnchants = new HashMap<>();
@@ -46,26 +47,13 @@ public class NameTranslatorManager {
 	    case REPAIR:
 	    case BREW:
 	    case FISH:
+	    case STRIPLOGS:
+		CMIMaterial mat = CMIMaterial.get(materialName);
+		NameList nameLs = ListOfNames.get(mat);
+		if (nameLs == null)
+		    return mat.getName();
 
-		for (NameList one : ListOfNames) {
-		    String ids = one.getName();
-		    if (ids.equalsIgnoreCase(materialName)) {
-			return one.getName();
-		    }
-		}
-		for (NameList one : ListOfNames) {
-		    String ids = one.getId() + ":" + one.getMeta();
-		    if (!one.getMeta().equalsIgnoreCase("") && ids.equalsIgnoreCase(id + ":" + meta) && !one.getId().equalsIgnoreCase("0")) {
-			return one.getName();
-		    }
-		}
-		for (NameList one : ListOfNames) {
-		    String ids = one.getId();
-		    if (ids.equalsIgnoreCase(String.valueOf(id)) && !one.getId().equalsIgnoreCase("0")) {
-			return one.getName();
-		    }
-		}
-		break;
+		return nameLs.getName();
 	    case BREED:
 	    case KILL:
 	    case MILK:
@@ -86,7 +74,6 @@ public class NameTranslatorManager {
 		}
 		break;
 	    case ENCHANT:
-
 		String name = materialName;
 		String level = "";
 		if (name.contains(":")) {
@@ -109,7 +96,6 @@ public class NameTranslatorManager {
 		    }
 		}
 		break;
-
 	    case MMKILL:
 		return Jobs.getMythicManager().getDisplayName(materialName);
 	    case DRINK:
@@ -136,14 +122,13 @@ public class NameTranslatorManager {
 	    Set<String> keys = section.getKeys(false);
 	    ListOfNames.clear();
 	    for (String one : keys) {
-
 		String split = one.split("-")[0];
 		String id = split.contains(":") ? split.split(":")[0] : split;
 		String meta = split.contains(":") && split.split(":").length > 1 ? split.split(":")[1] : "";
 
-		String MCName = one.contains("-") && one.split("-").length > 1 ? one.split("-")[1] : "";
+		String MCName = one.contains("-") && one.split("-").length > 1 ? one.split("-")[1] : one;
 		String Name = ItemFile.getConfig().getString("ItemList." + one);
-		ListOfNames.add(new NameList(id, meta, Name, MCName));
+		ListOfNames.put(CMIMaterial.get(one), new NameList(id, meta, Name, MCName));
 	    }
 	    if (ListOfNames.size() > 0)
 		Jobs.consoleMsg("&e[Jobs] Loaded " + ListOfNames.size() + " custom item names!");
@@ -186,10 +171,9 @@ public class NameTranslatorManager {
 	    ListOfColors.clear();
 	    for (String one : keys) {
 		String id = one.split("-")[0];
-		String meta = "";
 		String MCName = one.split("-")[1];
 		String Name = ItemFile.getConfig().getString("ColorList." + one);
-		ListOfColors.add(new NameList(id, meta, Name, MCName));
+		ListOfColors.add(new NameList(id, "", Name, MCName));
 	    }
 	    if (ListOfColors.size() > 0)
 		Jobs.consoleMsg("&e[Jobs] Loaded " + ListOfColors.size() + " custom color names!");
@@ -202,10 +186,9 @@ public class NameTranslatorManager {
 	    ListOfPotionNames.clear();
 	    for (String one : keys) {
 		String id = one.split("-")[0];
-		String meta = "";
 		String MCName = one.split("-")[1];
 		String Name = ItemFile.getConfig().getString("PotionNamesList." + one);
-		ListOfPotionNames.add(new NameList(id, meta, Name, MCName));
+		ListOfPotionNames.add(new NameList(id, "", Name, MCName));
 	    }
 	    if (ListOfPotionNames.size() > 0)
 		Jobs.consoleMsg("&e[Jobs] Loaded " + ListOfPotionNames.size() + " custom potion names!");
@@ -274,8 +257,14 @@ public class NameTranslatorManager {
 
 		String name = null;
 
-		if (c.getC().isConfigurationSection("ItemList." + n)) {
-		    name = c.getC().getString("ItemList." + n + ".Name");
+		if (c.getC().isString("ItemList." + one.toString())) {
+		    name = c.getC().getString("ItemList." + one.toString());
+		}
+
+		if (name == null) {
+		    if (c.getC().isConfigurationSection("ItemList." + n)) {
+			name = c.getC().getString("ItemList." + n + ".Name");
+		    }
 		}
 
 		if (name == null) {
@@ -324,7 +313,7 @@ public class NameTranslatorManager {
 		    name = one.getName();
 		}
 
-		c.get("ItemList." + (one.getId() == -1 ? one.getLegacyId() : one.getId()) + "-" + one.getBukkitName(), name);
+		c.get("ItemList." + one.toString(), name);
 	    }
 
 	    for (CMIEntityType one : CMIEntityType.values()) {
@@ -356,19 +345,19 @@ public class NameTranslatorManager {
 	    for (Enchantment one : Enchantment.values()) {
 		if (one == null)
 		    continue;
-		if (Jobs.getNms().getEnchantName(one) == null)
+		if (CMIEnchantment.getName(one) == null)
 		    continue;
 
-		String name = Util.firstToUpperCase(Jobs.getNms().getEnchantName(one).toString()).replace("_", " ");
+		String name = Util.firstToUpperCase(CMIEnchantment.getName(one).toString()).replace("_", " ");
 		if (c.getC().isConfigurationSection("EnchantList"))
 		    for (String onek : c.getC().getConfigurationSection("EnchantList").getKeys(false)) {
 			String old = c.getC().getString("EnchantList." + onek + ".MCName");
-			if (old != null && old.equalsIgnoreCase(Jobs.getNms().getEnchantName(one))) {
+			if (old != null && old.equalsIgnoreCase(CMIEnchantment.getName(one))) {
 			    name = c.getC().getString("EnchantList." + onek + ".Name");
 			    break;
 			}
 		    }
-		c.get("EnchantList." + Jobs.getNms().getEnchantName(one), name);
+		c.get("EnchantList." + CMIEnchantment.getName(one), name);
 	    }
 
 	    // Color list
@@ -423,15 +412,18 @@ public class NameTranslatorManager {
 		    name = c.getC().getString("PotionNamesList." + n + ".Name");
 
 		if (name == null) {
-		    n = n + "-" + one.toString();
-		    if (c.getC().isConfigurationSection("PotionNamesList." + n))
+		    n = (one.getId() == -1 ? "" : n + "-" + one.toString());
+		    if (n == "")
+			continue;
+
+		    if (c.getC().isString("PotionNamesList." + n))
 			name = c.getC().getString("PotionNamesList." + n);
 		}
 
 		if (name == null)
 		    name = one.getName();
 
-		c.get("PotionNamesList." + one.getId() + "-" + one.toString(), name);
+		c.get("PotionNamesList." + n.toString(), name);
 	    }
 
 	    c.save();

@@ -85,6 +85,7 @@ import org.bukkit.potion.Potion;
 import org.bukkit.projectiles.ProjectileSource;
 
 import com.gamingmesh.jobs.Jobs;
+import com.gamingmesh.jobs.CMILib.CMIEnchantment;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIMaterial;
 import com.gamingmesh.jobs.CMILib.VersionChecker.Version;
 import com.gamingmesh.jobs.actions.BlockActionInfo;
@@ -176,6 +177,10 @@ public class JobsPaymentListener implements Listener {
 	if (!payIfCreative(player))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 
 	if (jPlayer == null)
@@ -237,6 +242,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	// pay
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
@@ -294,11 +303,15 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	ItemStack item = Jobs.getNms().getItemInMainHand(player);
 
 	// Prevent item durability loss
 	if (!Jobs.getGCManager().payItemDurabilityLoss && item.getType().getMaxDurability()
-		    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
+	    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
 	    return;
 
 	// pay
@@ -344,6 +357,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	ItemStack contents = event.getContents().getIngredient();
 
 	if (contents == null)
@@ -373,9 +390,17 @@ public class JobsPaymentListener implements Listener {
 	if (!payIfCreative(player))
 	    return;
 
-	if (CMIMaterial.get(block).equals(CMIMaterial.FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+	CMIMaterial cmat = CMIMaterial.get(block);
+	if (cmat.equals(CMIMaterial.FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
 	    FurnaceBrewingHandling.removeFurnace(block);
-	if (CMIMaterial.get(block).equals(CMIMaterial.BREWING_STAND) && block.hasMetadata(brewingOwnerMetadata))
+	else if (cmat.equals(CMIMaterial.SMOKER) && block.hasMetadata(furnaceOwnerMetadata))
+	    FurnaceBrewingHandling.removeFurnace(block);
+	else if (cmat.equals(CMIMaterial.BLAST_FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
+	    FurnaceBrewingHandling.removeFurnace(block);
+	else if (cmat.equals(CMIMaterial.BREWING_STAND) && block.hasMetadata(brewingOwnerMetadata))
 	    FurnaceBrewingHandling.removeBrewing(block);
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
@@ -402,13 +427,13 @@ public class JobsPaymentListener implements Listener {
 	if (item != null && !item.getType().equals(Material.AIR)) {
 	    // Prevent item durability loss
 	    if (!Jobs.getGCManager().payItemDurabilityLoss && item.getType().getMaxDurability()
-			- Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
+		- Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
 		return;
 
 	    // Protection for block break with silktouch
 	    if (Jobs.getGCManager().useSilkTouchProtection) {
 		for (Entry<Enchantment, Integer> one : item.getEnchantments().entrySet()) {
-		    if (Jobs.getNms().getEnchantName(one.getKey()).equalsIgnoreCase("SILK_TOUCH")) {
+		    if (CMIEnchantment.get(one.getKey()) == CMIEnchantment.SILK_TOUCH) {
 			if (Jobs.getBpManager().isInBp(block))
 			    return;
 		    }
@@ -452,6 +477,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
 	    return;
@@ -476,11 +505,15 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	ItemStack item = Jobs.getNms().getItemInMainHand(player);
 
 	// Prevent item durability loss
 	if (!Jobs.getGCManager().payItemDurabilityLoss && item.getType().getMaxDurability()
-		    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
+	    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
 	    return;
 
 	if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
@@ -519,6 +552,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	// pay
@@ -569,6 +606,10 @@ public class JobsPaymentListener implements Listener {
 	}
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	if (!event.isLeftClick() && !event.isRightClick())
@@ -806,6 +847,10 @@ public class JobsPaymentListener implements Listener {
 	if (!payIfCreative(player))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	// Fix money dupping issue when clicking continuously in the result item, but if in the
 	// cursor have item, then dupping the money, #438
 	if (event.isLeftClick() && !player.getInventory().contains(inv.getItem(2)))
@@ -822,7 +867,10 @@ public class JobsPaymentListener implements Listener {
 		if (enchant == null)
 		    continue;
 
-		String enchantName = Jobs.getNms().getEnchantName(enchant);
+		CMIEnchantment e = CMIEnchantment.get(enchant);
+
+		String enchantName = e == null ? null : e.toString();
+
 		if (enchantName == null)
 		    continue;
 
@@ -867,11 +915,15 @@ public class JobsPaymentListener implements Listener {
 	if (!payIfCreative(player))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	ItemStack item = inv.getItem(0);
 
 	// Prevent item durability loss
 	if (!Jobs.getGCManager().payItemDurabilityLoss && item.getType().getMaxDurability()
-		    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
+	    - Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
 	    return;
 
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
@@ -885,7 +937,10 @@ public class JobsPaymentListener implements Listener {
 	    if (enchant == null)
 		continue;
 
-	    String enchantName = Jobs.getNms().getEnchantName(enchant);
+	    CMIEnchantment e = CMIEnchantment.get(enchant);
+
+	    String enchantName = e == null ? null : e.toString();
+
 	    if (enchantName == null)
 		continue;
 
@@ -982,6 +1037,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
@@ -1118,11 +1177,15 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(pDamager, pDamager.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && pDamager.isInsideVehicle())
+	    return;
+
 	ItemStack item = Jobs.getNms().getItemInMainHand(pDamager);
 	if (item != null && !item.getType().equals(Material.AIR)) {
 	    // Prevent item durability loss
 	    if (!Jobs.getGCManager().payItemDurabilityLoss && item.getType().getMaxDurability()
-			- Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
+		- Jobs.getNms().getDurability(item) != item.getType().getMaxDurability())
 		return;
 	}
 
@@ -1194,6 +1257,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
 	    return;
@@ -1224,6 +1291,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
 	    return;
@@ -1237,19 +1308,22 @@ public class JobsPaymentListener implements Listener {
 	if (!ent.getType().toString().equalsIgnoreCase("ARMOR_STAND"))
 	    return;
 	Location loc = event.getLocation();
-	Collection<Entity> ents = loc.getWorld().getNearbyEntities(loc, 4, 4, 4);
+	Collection<Entity> ents = Version.isCurrentEqualOrLower(Version.v1_8_R1)
+		    ? null : loc.getWorld().getNearbyEntities(loc, 4, 4, 4);
 	double dis = Double.MAX_VALUE;
 	Player player = null;
-	for (Entity one : ents) {
-	    if (!(one instanceof Player))
-		continue;
-	    Player p = (Player) one;
-	    if (!Jobs.getNms().getItemInMainHand(p).getType().toString().equalsIgnoreCase("ARMOR_STAND"))
-		continue;
-	    double d = p.getLocation().distance(loc);
-	    if (d < dis) {
-		dis = d;
-		player = p;
+	if (ents != null) {
+	    for (Entity one : ents) {
+		if (!(one instanceof Player))
+		    continue;
+		Player p = (Player) one;
+		if (!Jobs.getNms().getItemInMainHand(p).getType().toString().equalsIgnoreCase("ARMOR_STAND"))
+		    continue;
+		double d = p.getLocation().distance(loc);
+		if (d < dis) {
+		    dis = d;
+		    player = p;
+		}
 	    }
 	}
 
@@ -1259,6 +1333,9 @@ public class JobsPaymentListener implements Listener {
 	if (!payIfCreative(player))
 	    return;
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
+	    return;
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
@@ -1293,6 +1370,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(pDamager, pDamager.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && pDamager.isInsideVehicle())
 	    return;
 
 	// pay
@@ -1364,6 +1445,10 @@ public class JobsPaymentListener implements Listener {
 	    if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 		return;
 
+	    // check if player is riding
+	    if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+		return;
+
 	    // pay
 	    JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(player);
 	    if (jDamager == null)
@@ -1401,6 +1486,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	// Item in hand
@@ -1456,6 +1545,10 @@ public class JobsPaymentListener implements Listener {
 	if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld().getName()))
 	    return;
 
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
+	    return;
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
 	    return;
@@ -1464,10 +1557,16 @@ public class JobsPaymentListener implements Listener {
 	    if (block == null)
 		continue;
 
-	    if (CMIMaterial.get(block).equals(CMIMaterial.FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
+	    CMIMaterial cmat = CMIMaterial.get(block);
+
+	    if (cmat.equals(CMIMaterial.FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
+		FurnaceBrewingHandling.removeFurnace(block);
+	    else if (cmat.equals(CMIMaterial.SMOKER) && block.hasMetadata(furnaceOwnerMetadata))
+		FurnaceBrewingHandling.removeFurnace(block);
+	    else if (cmat.equals(CMIMaterial.BLAST_FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
 		FurnaceBrewingHandling.removeFurnace(block);
 
-	    if (CMIMaterial.get(block).equals(CMIMaterial.BREWING_STAND) && block.hasMetadata(brewingOwnerMetadata))
+	    else if (cmat.equals(CMIMaterial.BREWING_STAND) && block.hasMetadata(brewingOwnerMetadata))
 		FurnaceBrewingHandling.removeBrewing(block);
 
 	    if (Jobs.getGCManager().useBlockProtection)
@@ -1490,8 +1589,8 @@ public class JobsPaymentListener implements Listener {
 	Block block = event.getClickedBlock();
 	if (block == null)
 	    return;
-
-	if (CMIMaterial.get(block).equals(CMIMaterial.FURNACE) || CMIMaterial.get(block).equals(CMIMaterial.LEGACY_BURNING_FURNACE)) {
+	CMIMaterial cmat = CMIMaterial.get(block);
+	if (cmat.equals(CMIMaterial.FURNACE) || cmat.equals(CMIMaterial.LEGACY_BURNING_FURNACE) || cmat.equals(CMIMaterial.SMOKER) || cmat.equals(CMIMaterial.BLAST_FURNACE)) {
 	    if (!Jobs.getGCManager().isFurnacesReassign())
 		return;
 
@@ -1553,9 +1652,12 @@ public class JobsPaymentListener implements Listener {
 	    event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 	    ItemStack iih = Jobs.getNms().getItemInMainHand(event.getPlayer());
 	    if (iih.getType().toString().endsWith("_AXE")) {
+		// check if player is riding
+		if (Jobs.getGCManager().disablePaymentIfRiding && event.getPlayer().isInsideVehicle())
+		    return;
 		// Prevent item durability loss
 		if (!Jobs.getGCManager().payItemDurabilityLoss && iih.getType().getMaxDurability()
-			    - Jobs.getNms().getDurability(iih) != iih.getType().getMaxDurability())
+		    - Jobs.getNms().getDurability(iih) != iih.getType().getMaxDurability())
 		    return;
 
 		final Location loc = event.getClickedBlock().getLocation();
@@ -1590,6 +1692,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getPermissionHandler().hasWorldPermission(p, p.getLocation().getWorld().getName()))
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && p.isInsideVehicle())
 	    return;
 
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(p);
@@ -1636,6 +1742,10 @@ public class JobsPaymentListener implements Listener {
 	    return;
 
 	if (!Jobs.getGCManager().payExploringWhenFlying() && player.isFlying())
+	    return;
+
+	// check if player is riding
+	if (Jobs.getGCManager().disablePaymentIfRiding && player.isInsideVehicle())
 	    return;
 
 	if (Jobs.getVersionCheckManager().getVersion().isEqualOrHigher(Version.v1_9_R1)

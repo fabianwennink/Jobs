@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +42,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import com.gamingmesh.jobs.ItemBoostManager;
 import com.gamingmesh.jobs.Jobs;
+import com.gamingmesh.jobs.CMILib.CMIEnchantment;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIEntityType;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIMaterial;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIPotionType;
@@ -347,16 +347,8 @@ public class ConfigManager {
 	    }
 
 	} else if (actionType == ActionType.ENCHANT) {
-	    Enchantment enchant = Enchantment.getByName(myKey);
-	    if (enchant != null) {
-		if (Jobs.getVersionCheckManager().getVersion().isEqualOrLower(Version.v1_12_R1)) {
-		    try {
-			id = (int) enchant.getClass().getMethod("getId").invoke(enchant);
-		    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-		    }
-		}
-	    }
-	    type = myKey;
+	    CMIEnchantment enchant = CMIEnchantment.get(myKey);
+	    type = enchant == null ? myKey : enchant.toString();
 	} else if (actionType == ActionType.CUSTOMKILL || actionType == ActionType.SHEAR || actionType == ActionType.MMKILL)
 	    type = myKey;
 	else if (actionType == ActionType.EXPLORE) {
@@ -402,6 +394,10 @@ public class ConfigManager {
      */
     private void loadJobSettings() throws IOException {
 	File f = new File(Jobs.getFolder(), "jobConfig.yml");
+	if (!f.exists()) {
+	    YmlMaker jobConfig = new YmlMaker(Jobs.getInstance(), "jobConfig.yml");
+	    jobConfig.saveDefaultConfig();
+	}
 	InputStreamReader s = new InputStreamReader(new FileInputStream(f), "UTF-8");
 
 	ArrayList<Job> jobs = new ArrayList<>();
@@ -620,10 +616,10 @@ public class ConfigManager {
 				String[] enchantid = str4.split(":");
 				if ((GUIitem.getItemMeta() instanceof EnchantmentStorageMeta)) {
 				    EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) GUIitem.getItemMeta();
-				    enchantMeta.addStoredEnchant(Jobs.getNms().getEnchantment(enchantid[0]), Integer.parseInt(enchantid[1]), true);
+				    enchantMeta.addStoredEnchant(CMIEnchantment.getEnchantment(enchantid[0]), Integer.parseInt(enchantid[1]), true);
 				    GUIitem.setItemMeta(enchantMeta);
 				} else
-				    GUIitem.addUnsafeEnchantment(Jobs.getNms().getEnchantment(enchantid[0]), Integer.parseInt(enchantid[1]));
+				    GUIitem.addUnsafeEnchantment(CMIEnchantment.getEnchantment(enchantid[0]), Integer.parseInt(enchantid[1]));
 			    }
 			}
 		    } else if (guiSection.contains("CustomSkull")) {
@@ -649,10 +645,10 @@ public class ConfigManager {
 				String[] id = str4.split(":");
 				if ((GUIitem.getItemMeta() instanceof EnchantmentStorageMeta)) {
 				    EnchantmentStorageMeta enchantMeta = (EnchantmentStorageMeta) GUIitem.getItemMeta();
-				    enchantMeta.addStoredEnchant(Jobs.getNms().getEnchantment(id[0]), Integer.parseInt(id[1]), true);
+				    enchantMeta.addStoredEnchant(CMIEnchantment.getEnchantment(id[0]), Integer.parseInt(id[1]), true);
 				    GUIitem.setItemMeta(enchantMeta);
 				} else
-				    GUIitem.addUnsafeEnchantment(Jobs.getNms().getEnchantment(id[0]), Integer.parseInt(id[1]));
+				    GUIitem.addUnsafeEnchantment(CMIEnchantment.getEnchantment(id[0]), Integer.parseInt(id[1]));
 			    }
 			}
 		    } else if (guiSection.contains("CustomSkull")) {
@@ -778,7 +774,7 @@ public class ConfigManager {
 			    if (!eachLine.contains("="))
 				continue;
 
-			    Enchantment ench = Jobs.getNms().getEnchantment(eachLine.split("=")[0]);
+			    Enchantment ench = CMIEnchantment.getEnchantment(eachLine.split("=")[0]);
 			    Integer level = -1;
 			    try {
 				level = Integer.parseInt(eachLine.split("=")[1]);
@@ -835,7 +831,7 @@ public class ConfigManager {
 			    if (!eachLine.contains("="))
 				continue;
 
-			    Enchantment ench = Jobs.getNms().getEnchantment(eachLine.split("=")[0]);
+			    Enchantment ench = CMIEnchantment.getEnchantment(eachLine.split("=")[0]);
 			    Integer level = -1;
 			    try {
 				level = Integer.parseInt(eachLine.split("=")[1]);
@@ -1126,20 +1122,12 @@ public class ConfigManager {
 			    }
 
 			} else if (actionType == ActionType.ENCHANT) {
-			    Enchantment enchant = Jobs.getNms().getEnchantment(myKey);
-			    if (enchant != null) {
-				if (Jobs.getVersionCheckManager().getVersion().isEqualOrLower(Version.v1_12_R1)) {
-				    try {
-					id = (int) enchant.getClass().getMethod("getId").invoke(enchant);
-				    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				    }
-				}
-			    }
+			    CMIEnchantment enchant = CMIEnchantment.get(myKey);
 			    if (enchant == null && material == CMIMaterial.NONE) {
 				Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "!");
 				continue;
 			    }
-			    type = myKey;
+			    type = enchant == null ? myKey : enchant.toString();
 			} else if (actionType == ActionType.CUSTOMKILL || actionType == ActionType.SHEAR || actionType == ActionType.MMKILL)
 			    type = myKey;
 			else if (actionType == ActionType.EXPLORE) {

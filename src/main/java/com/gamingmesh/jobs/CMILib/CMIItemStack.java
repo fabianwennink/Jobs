@@ -236,6 +236,12 @@ public class CMIItemStack {
 	return cmiMaterial == null ? CMIMaterial.get(material) : cmiMaterial;
     }
 
+    /**
+     * Gets the material
+     * 
+     * @deprecated Use {@link #getType()}
+     * @return Material
+     */
     @Deprecated
     public Material getMaterial() {
 	return getType();
@@ -435,13 +441,13 @@ public class CMIItemStack {
 	    for (Entry<Enchantment, Integer> one : meta.getStoredEnchants().entrySet()) {
 		if (!s.isEmpty())
 		    s += ";";
-		s += Jobs.getNms().getEnchantName(one.getKey()) + "x" + one.getValue();
+		s += CMIEnchantment.get(one.getKey()) + "x" + one.getValue();
 	    }
 
 	    for (Entry<Enchantment, Integer> one : meta.getEnchants().entrySet()) {
 		if (!s.isEmpty())
 		    s += ";";
-		s += Jobs.getNms().getEnchantName(one.getKey()) + "x" + one.getValue();
+		s += CMIEnchantment.get(one.getKey()) + "x" + one.getValue();
 	    }
 	    if (!s.isEmpty())
 		liner += ":" + s;

@@ -54,6 +54,7 @@ public class quests implements Cmd {
 	if (sender instanceof Player) {
 	    for (JobProgression jobProg : jPlayer.getJobProgression()) {
 		List<QuestProgression> list = jPlayer.getQuestProgressions(jobProg.getJob());
+
 		for (QuestProgression q : list) {
 		    String progressLine = Jobs.getCommandManager().jobProgressMessage(q.getTotalAmountNeeded(), q.getTotalAmountDone());
 
