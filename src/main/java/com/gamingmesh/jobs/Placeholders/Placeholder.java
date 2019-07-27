@@ -373,11 +373,10 @@ public class Placeholder {
     }
 
     public String getValue(UUID uuid, JobsPlaceHolders placeHolder, String value) {
-	JobsPlayer user = Jobs.getPlayerManager().getJobsPlayer(uuid);
-
 	if (placeHolder == null)
 	    return null;
 
+	JobsPlayer user = Jobs.getPlayerManager().getJobsPlayer(uuid);
 	// Placeholders by JobsPlayer object
 	if (user != null) {
 	    switch (placeHolder) {

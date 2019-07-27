@@ -1,6 +1,5 @@
 package com.gamingmesh.jobs.config;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ public class ScheduleManager {
     public void start() {
 	if (Jobs.getGCManager().BoostSchedule.isEmpty())
 	    return;
+	cancel();
 	autoTimerBukkitId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, autoTimer, 20, 30 * 20L);
     }
 
@@ -41,14 +41,11 @@ public class ScheduleManager {
 	    Bukkit.getScheduler().cancelTask(autoTimerBukkitId);
     }
 
-    private Runnable autoTimer = new Runnable() {
-	@Override
-	public void run() {
+    private Runnable autoTimer = () -> {
 	    try {
 		scheduler();
 	    } catch (Throwable e) {
 	    }
-	}
     };
 
     public int getDateByInt() {
@@ -170,8 +167,10 @@ public class ScheduleManager {
      * loads from Jobs/schedule.yml
      */
     public void load() {
-	File f = new File(Jobs.getFolder(), "schedule.yml");
-	YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+	YmlMaker jobSchedule = new YmlMaker(plugin, "schedule.yml");
+	jobSchedule.saveDefaultConfig();
+
+	YamlConfiguration conf = YamlConfiguration.loadConfiguration(jobSchedule.getConfigFile());
 
 	conf.options().copyDefaults(true);
 

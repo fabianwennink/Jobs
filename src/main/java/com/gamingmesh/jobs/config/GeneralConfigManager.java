@@ -74,7 +74,9 @@ public class GeneralConfigManager {
     public boolean PaymentMethodsPoints;
     public boolean PaymentMethodsExp;
     private HashMap<CurrencyType, Double> generalMulti = new HashMap<>();
-    private String getSelectionTool = "";
+    private String getSelectionTool;
+
+    public boolean enableSchedule;
 
     private int ResetTimeHour;
     private int ResetTimeMinute;
@@ -84,12 +86,10 @@ public class GeneralConfigManager {
     private HashMap<CurrencyType, CurrencyLimit> currencyLimitUse = new HashMap<>();
 
     public boolean PayForRenaming, PayForEnchantingOnAnvil, PayForEachCraft, SignsEnabled,
-	SignsColorizeJobName, ShowToplistInScoreboard, useGlobalTimer, useCoreProtect, BlockPlaceUse,
-	EnableAnounceMessage, useSilkTouchProtection, UseCustomNames,
-	UseJobsBrowse, PreventSlimeSplit, PreventMagmaCubeSplit, PreventHopperFillUps, PreventBrewingStandFillUps,
+	SignsColorizeJobName, ShowToplistInScoreboard, useGlobalTimer, useSilkTouchProtection, UseCustomNames,
+	PreventSlimeSplit, PreventMagmaCubeSplit, PreventHopperFillUps, PreventBrewingStandFillUps,
 	BrowseUseNewLook;
-    public int globalblocktimer, CowMilkingTimer,
-	CoreProtectInterval, BlockPlaceInterval, InfoUpdateInterval;
+    public int globalblocktimer, CowMilkingTimer, InfoUpdateInterval;
     public Double TreeFellerMultiplier, gigaDrillMultiplier, superBreakerMultiplier;
     public String localeString = "";
 
@@ -107,7 +107,7 @@ public class GeneralConfigManager {
     public boolean fixAtMaxLevel, TitleChangeChat, TitleChangeActionBar, LevelChangeChat,
 	LevelChangeActionBar, SoundLevelupUse, SoundTitleChangeUse, UseServerAccount, EmptyServerAccountChat,
 	EmptyServerAccountActionBar, ActionBarsMessageByDefault, ShowTotalWorkers, ShowPenaltyBonus, useDynamicPayment,
-	JobsGUIOpenOnBrowse, JobsGUIShowChatBrowse, JobsGUISwitcheButtons, JobsGUIOpenOnJoin;
+	JobsGUIOpenOnBrowse, JobsGUIShowChatBrowse, JobsGUISwitcheButtons, ShowActionNames;
 
     public boolean FireworkLevelupUse, UseRandom, UseFlicker, UseTrail;
     public String FireworkType;
@@ -124,7 +124,7 @@ public class GeneralConfigManager {
     public ItemStack guiBackButton;
 	public ItemStack guiWhiteFiller, guiOrangeFiller, guiYellowFiller;
 
-    public int JobsTopAmount;
+    public int JobsTopAmount, PlaceholdersPage;
 
     public Integer levelLossPercentageFromMax, levelLossPercentage, SoundLevelupVolume, SoundLevelupPitch, SoundTitleChangeVolume,
 	SoundTitleChangePitch, ToplistInScoreboardInterval;
@@ -163,7 +163,7 @@ public class GeneralConfigManager {
 
     public List<Schedule> BoostSchedule = new ArrayList<>();
 
-    public HashMap<String, List<String>> commandArgs = new HashMap<>();
+    private HashMap<String, List<String>> commandArgs = new HashMap<>();
 
     public boolean DBCleaningJobsUse;
     public int DBCleaningJobsLvl;
@@ -187,12 +187,23 @@ public class GeneralConfigManager {
 	this.plugin = plugin;
     }
 
+    /**
+     * @deprecated Use {@link #useBreederFinder}
+     * Sets the breeder finder boolean
+     * @param state boolean
+     */
+    @Deprecated
     public void setBreederFinder(boolean state) {
 	this.useBreederFinder = state;
     }
 
+    /**
+     * @deprecated Use {@link #useBreederFinder}
+     * @return boolean
+     */
+    @Deprecated
     public boolean isUseBreederFinder() {
-	return this.useBreederFinder;
+	return useBreederFinder;
     }
 
     public void setTntFinder(boolean state) {
@@ -200,7 +211,7 @@ public class GeneralConfigManager {
     }
 
     public boolean isUseTntFinder() {
-	return this.useTnTFinder;
+	return useTnTFinder;
     }
 
     /**
@@ -528,6 +539,9 @@ public class GeneralConfigManager {
 	ResetTimeHour = c.get("DailyQuests.ResetTime.Hour", 4);
 	ResetTimeMinute = c.get("DailyQuests.ResetTime.Minute", 0);
 
+	c.addComment("ScheduleManager", "Enables the schedule manager to boost the server.", "By default this has been disabled for causing memory leak.");
+	enableSchedule = c.get("ScheduleManager.Use", false);
+
 	c.addComment("max-jobs", "Maximum number of jobs a player can join.", "Use 0 for no maximum", "Keep in mind that jobs.max.[amount] will bypass this setting");
 	maxJobs = c.get("max-jobs", 3);
 
@@ -560,13 +574,13 @@ public class GeneralConfigManager {
 	addXpPlayer = c.get("add-xp-player", false);
 
 	c.addComment("allow-pay-for-durability-loss", "Allows, when losing maximum durability of item then it does not pay the player until it is repaired.",
-		"E.g. the player wants to enchant a item with enchanting table and the item has durability loss then not paying.");
+	    "E.g. the player wants to enchant a item with enchanting table and the item has durability loss then not paying.");
 	c.addComment("allow-pay-for-durability-loss.Use", "Do not disable this if you don't know what mean this option.");
 	payItemDurabilityLoss = c.get("allow-pay-for-durability-loss.Use", true);
 	c.addComment("allow-pay-for-durability-loss.WhiteListedItems", "What items (tools) are whitelisted the player get paid, when this item has durability loss?",
-			"Enchantments are supported, usage:", "itemName=ENCHANTMENT_NAME-level");
+	    "Enchantments are supported, usage:", "itemName=ENCHANTMENT_NAME-level");
 	WhiteListedItems = c.get("allow-pay-for-durability-loss.WhiteListedItems",
-		Arrays.asList("wooden_pickaxe=DURABILITY-1", "fishing_rod"));
+	    Arrays.asList("wooden_pickaxe=DURABILITY-1", "fishing_rod"));
 
 	c.addComment("modify-chat", "Modifys chat to add chat titles. If you're using a chat manager, you may add the tag {jobs} to your chat format and disable this.");
 	modifyChat = c.get("modify-chat.use", false);
@@ -618,8 +632,13 @@ public class GeneralConfigManager {
 	c.addComment("Economy.DynamicPayment.use", "Do you want to use dynamic payment dependent on how many players already working for jobs?",
 	    "This can help automatically lift up payments for not so popular jobs and lower for most popular ones");
 	useDynamicPayment = c.get("Economy.DynamicPayment.use", false);
-
-	String maxExpEquationInput = c.get("Economy.DynamicPayment.equation", "((totalworkers / totaljobs) - jobstotalplayers)/10.0");
+	
+	c.addComment("Economy.DynamicPayment.equation", "totalworkers: The total number of players on the server who have jobs",
+	    "totaljobs: The number of jobs that are enabled",
+	    "jobstotalplayers: The number of people in that particular job", 
+	    "Exponential equation: totalworkers / totaljobs / jobstotalplayers - 1",
+	    "Linear equation: ((totalworkers / totaljobs) - jobstotalplayers)/10.0");
+	String maxExpEquationInput = c.get("Economy.DynamicPayment.equation", "totalworkers / totaljobs / jobstotalplayers - 1");
 	try {
 	    DynamicPaymentEquation = new Parser(maxExpEquationInput);
 	    // test equation
@@ -632,8 +651,8 @@ public class GeneralConfigManager {
 	    useDynamicPayment = false;
 	}
 
-	DynamicPaymentMaxPenalty = c.get("Economy.DynamicPayment.MaxPenalty", 25.0);
-	DynamicPaymentMaxBonus = c.get("Economy.DynamicPayment.MaxBonus", 100.0);
+	DynamicPaymentMaxPenalty = c.get("Economy.DynamicPayment.MaxPenalty", 50.0);
+	DynamicPaymentMaxBonus = c.get("Economy.DynamicPayment.MaxBonus", 300.0);
 	c.addComment("Economy.MaxPayment.curve.use", "Enabling this feature will mean players will still earn once they reach cap but " +
 	    "will loose a percentage the higher over cap they go. Controlled by a factor. math is ```100/((1/factor*percentOver^2)+1)```");
 	useMaxPaymentCurve = c.get("Economy.MaxPayment.curve.use", false);
@@ -874,10 +893,10 @@ public class GeneralConfigManager {
 	    BossBarsMessageByDefault = c.get("BossBar.Messages.EnabledByDefault", true);
 
 	    c.addComment("BossBar.ShowOnEachAction", "If enabled boss bar will update after each action",
-			"If disabled, BossBar will update only on each payment. This can save some server resources");
+		"If disabled, BossBar will update only on each payment. This can save some server resources");
 	    BossBarShowOnEachAction = c.get("BossBar.ShowOnEachAction", false);
 	    c.addComment("BossBar.Timer", "How long in sec to show BossBar for player",
-			"If you have disabled ShowOnEachAction, then keep this number higher than payment interval for better experience");
+		"If you have disabled ShowOnEachAction, then keep this number higher than payment interval for better experience");
 	    BossBarTimer = c.get("BossBar.Timer", economyBatchDelay + 1);
 	}
 
@@ -949,6 +968,8 @@ public class GeneralConfigManager {
 	c.addComment("JobsGUI.SwitcheButtons", "With true left mouse button will join job and right will show more info",
 	    "With false left mouse button will show more info, right will join job", "Don't forget to adjust locale file");
 	JobsGUISwitcheButtons = c.get("JobsGUI.SwitcheButtons", false);
+	c.addComment("JobsGUI.ShowActionNames", "Do you want to show the action names in GUI?");
+	ShowActionNames = c.get("JobsGUI.ShowActionNames", true);
 	c.addComment("JobsGUI.Rows", "Defines size in rows of GUI");
 	JobsGUIRows = c.get("JobsGUI.Rows", 5);
 	c.addComment("JobsGUI.BackButtonSlot", "Defines back button slot in GUI");
@@ -960,8 +981,10 @@ public class GeneralConfigManager {
 	c.addComment("JobsGUI.SkipAmount", "Defines by how many slots we need to skip after group");
 	JobsGUISkipAmount = c.get("JobsGUI.SkipAmount", 2);
 
-	c.addComment("JobsTop.AmountToShow", "Defines amount of players to be shown in one page for /jobs top & /jobs gtop");
-	JobsTopAmount = c.get("JobsTop.AmountToShow", 15);
+	c.addComment("PageRow.JobsTop.AmountToShow", "Defines amount of players to be shown in one page for /jobs top & /jobs gtop");
+	JobsTopAmount = c.get("PageRow.JobsTop.AmountToShow", 15);
+	c.addComment("PageRow.Placeholders.AmountToShow", "Defines amount of placeholders to be shown in one page for /jobs placeholders");
+	PlaceholdersPage = c.get("PageRow.Placeholders.AmountToShow", 10);
 
 	CMIMaterial tmat = null;
 	tmat = CMIMaterial.get(c.get("JobsGUI.BackButton.Material", "JACK_O_LANTERN"));

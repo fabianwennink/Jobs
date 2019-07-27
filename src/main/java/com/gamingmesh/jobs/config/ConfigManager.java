@@ -1,17 +1,17 @@
 /**
  * Jobs Plugin for Bukkit
  * Copyright (C) 2011 Zak Ford <zak.j.ford@gmail.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -261,11 +261,11 @@ public class ConfigManager {
 		}
 	    }
 	    // START HACK
-	    /* 
+	    /*
 	     * Historically, GLOWING_REDSTONE_ORE would ONLY work as REDSTONE_ORE, and putting
-	     * GLOWING_REDSTONE_ORE in the configuration would not work.  Unfortunately, this is 
+	     * GLOWING_REDSTONE_ORE in the configuration would not work.  Unfortunately, this is
 	     * completely backwards and wrong.
-	     * 
+	     *
 	     * To maintain backwards compatibility, all instances of REDSTONE_ORE should normalize
 	     * to GLOWING_REDSTONE_ORE, and warn the user to change their configuration.  In the
 	     * future this hack may be removed and anybody using REDSTONE_ORE will have their
@@ -303,7 +303,7 @@ public class ConfigManager {
 
 		// using breeder finder
 		if (actionType == ActionType.BREED)
-		    Jobs.getGCManager().setBreederFinder(true);
+		    Jobs.getGCManager().useBreederFinder = true;
 	    }
 
 	    if (entity == null) {
@@ -370,6 +370,8 @@ public class ConfigManager {
 		type = potion.toString();
 		id = potion.getId();
 	    }
+	} else if (actionType == ActionType.COLLECT) {
+	    type = myKey;
 	}
 
 	if (type == null) {
@@ -388,9 +390,9 @@ public class ConfigManager {
 
     /**
      * Method to load the jobs configuration
-     * 
+     *
      * loads from Jobs/jobConfig.yml
-     * @throws IOException 
+     * @throws IOException
      */
     private void loadJobSettings() throws IOException {
 	File f = new File(Jobs.getFolder(), "jobConfig.yml");
@@ -907,6 +909,7 @@ public class ConfigManager {
 
 			List<String> commands = sqsection.getStringList("RewardCommands");
 			List<String> desc = sqsection.getStringList("RewardDesc");
+			List<String> areas = sqsection.getStringList("RestrictedAreas");
 
 			if (sqsection.isInt("fromLevel"))
 			    quest.setMinLvl(sqsection.getInt("fromLevel"));
@@ -918,6 +921,7 @@ public class ConfigManager {
 			quest.setChance(chance);
 			quest.setRewardCmds(commands);
 			quest.setDescription(desc);
+			quest.setRestrictedArea(areas);
 			quests.add(quest);
 
 		    } catch (Throwable e) {
@@ -1041,11 +1045,11 @@ public class ConfigManager {
 				}
 			    }
 			    // START HACK
-			    /* 
+			    /*
 			     * Historically, GLOWING_REDSTONE_ORE would ONLY work as REDSTONE_ORE, and putting
-			     * GLOWING_REDSTONE_ORE in the configuration would not work.  Unfortunately, this is 
+			     * GLOWING_REDSTONE_ORE in the configuration would not work.  Unfortunately, this is
 			     * completely backwards and wrong.
-			     * 
+			     *
 			     * To maintain backwards compatibility, all instances of REDSTONE_ORE should normalize
 			     * to GLOWING_REDSTONE_ORE, and warn the user to change their configuration.  In the
 			     * future this hack may be removed and anybody using REDSTONE_ORE will have their
@@ -1077,7 +1081,7 @@ public class ConfigManager {
 
 				// using breeder finder
 				if (actionType == ActionType.BREED)
-				    Jobs.getGCManager().setBreederFinder(true);
+				    Jobs.getGCManager().useBreederFinder = true;
 			    }
 
 			    // Pre 1.13 checks for custom names
@@ -1149,6 +1153,8 @@ public class ConfigManager {
 				type = potion.toString();
 				id = potion.getId();
 			    }
+			} else if (actionType == ActionType.COLLECT) {
+			    type = myKey;
 			}
 
 			if (type == null) {

@@ -1,17 +1,17 @@
 /**
  * Jobs Plugin for Bukkit
  * Copyright (C) 2011 Zak Ford <zak.j.ford@gmail.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,6 +33,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Furnace;
+import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
@@ -89,6 +91,7 @@ import com.gamingmesh.jobs.CMILib.CMIEnchantment;
 import com.gamingmesh.jobs.CMILib.ItemManager.CMIMaterial;
 import com.gamingmesh.jobs.CMILib.VersionChecker.Version;
 import com.gamingmesh.jobs.actions.BlockActionInfo;
+import com.gamingmesh.jobs.actions.BlockCollectInfo;
 import com.gamingmesh.jobs.actions.CustomKillInfo;
 import com.gamingmesh.jobs.actions.EnchantActionInfo;
 import com.gamingmesh.jobs.actions.EntityActionInfo;
@@ -435,6 +438,7 @@ public class JobsPaymentListener implements Listener {
 		}
 	    }
 	}
+
 	JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
 	if (jPlayer == null)
 	    return;
@@ -701,12 +705,6 @@ public class JobsPaymentListener implements Listener {
 		}
 	    }
 
-    }
-
-    @SuppressWarnings("unused")
-    @Deprecated
-    private Integer schedulePostDetection(final HumanEntity player, final ItemStack compareItem, final JobsPlayer jPlayer, final ItemStack resultStack) {
-	return schedulePostDetection(player, compareItem, jPlayer, resultStack, ActionType.CRAFT);
     }
 
     // HACK! The API doesn't allow us to easily determine the resulting number of
@@ -1572,6 +1570,26 @@ public class JobsPaymentListener implements Listener {
 	if (block == null)
 	    return;
 	CMIMaterial cmat = CMIMaterial.get(block);
+
+	if (Version.isCurrentEqualOrHigher(Version.v1_14_R1) && !event.useInteractedBlock().equals(org.bukkit.event.Event.Result.DENY)) {
+	    JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(event.getPlayer());
+	    if (jPlayer != null) {
+		if (cmat.equals(CMIMaterial.COMPOSTER)) {
+		    Levelled level = (Levelled) block.getBlockData();
+		    if (level.getLevel() == level.getMaximumLevel()) {
+			Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.COLLECT), block);
+		    }
+		}
+
+		if (cmat.equals(CMIMaterial.SWEET_BERRY_BUSH)) {
+		    Ageable age = (Ageable) block.getBlockData();
+		    if (!Jobs.getNms().getItemInMainHand(event.getPlayer()).getType().equals(CMIMaterial.BONE_MEAL.getMaterial())) {
+			Jobs.action(jPlayer, new BlockCollectInfo(block, ActionType.COLLECT, age.getAge()), block);
+		    }
+		}
+	    }
+	}
+
 	if (cmat.equals(CMIMaterial.FURNACE) || cmat.equals(CMIMaterial.LEGACY_BURNING_FURNACE) || cmat.equals(CMIMaterial.SMOKER) || cmat.equals(CMIMaterial.BLAST_FURNACE)) {
 	    if (!Jobs.getGCManager().isFurnacesReassign())
 		return;

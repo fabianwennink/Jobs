@@ -16,16 +16,16 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.14.3-R0.1-SNAPSHOT</version>
+			<version>1.14.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- MyPet -->
 		<dependency>
 			<groupId>de.Keyle.MyPet</groupId>
 			<artifactId>MyPet</artifactId>
-			<version>3.4</version>
+			<version>3.5</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/libs/MyPet-3.4.jar</systemPath>
+			<systemPath>${basedir}/libs/MyPet-3.5.jar</systemPath>
 		</dependency>
 		<!-- McMMO -->
 		<dependency>

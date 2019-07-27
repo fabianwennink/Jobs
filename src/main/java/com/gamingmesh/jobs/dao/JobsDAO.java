@@ -374,6 +374,9 @@ public abstract class JobsDAO {
     public final synchronized void setUp() throws SQLException {
 	setupConfig();
 
+	if (getConnection() == null)
+	    return;
+
 	try {
 	    for (DBTables one : DBTables.values()) {
 		createDefaultTable(one);
@@ -403,7 +406,7 @@ public abstract class JobsDAO {
 
     public boolean isConnected() {
 	try {
-	    return pool.getConnection() != null;
+	    return pool != null && pool.getConnection() != null && !pool.getConnection().isClosed();
 	} catch (SQLException e) {
 	    return false;
 	}
@@ -984,7 +987,7 @@ public abstract class JobsDAO {
      * Join a job (create player-job entry from storage)
      * @param player - player that wishes to join the job
      * @param job - job that the player wishes to join
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<Convert> convertDatabase(String table) throws SQLException {
 	JobsConnection conn = getConnection();
@@ -1031,7 +1034,7 @@ public abstract class JobsDAO {
 	int i = list.size();
 	try {
 	    statement = conns.createStatement();
-	    if (Jobs.getDBManager().getDbType().toString().equalsIgnoreCase("sqlite")) {
+	    if (Jobs.getDBManager().getDbType().toString().equalsIgnoreCase("mysql")) {
 		statement.executeUpdate("TRUNCATE TABLE `" + getPrefix() + table + "`");
 	    } else {
 		statement.executeUpdate("DELETE from `" + getPrefix() + table + "`");
@@ -1254,11 +1257,12 @@ public abstract class JobsDAO {
 	    // add the progression level.
 	    jPlayer.progression.add(jobProgression);
 
+	    jPlayer.getArchivedJobs().addArchivedJob(jobProgression);
 	}
 	jPlayer.reloadMaxExperience();
 	jPlayer.reloadLimits();
 	jPlayer.setUserId(Jobs.getPlayerManager().getPlayerId(player.getUniqueId()));
-	Jobs.getJobsDAO().loadPoints(jPlayer);
+	loadPoints(jPlayer);
 //	}
 	return jPlayer;
     }
@@ -1764,9 +1768,7 @@ public abstract class JobsDAO {
 
     /**
      * Save player-explore information
-     * @param jobexplore - the information getting saved
      */
-
     public void saveExplore() {
 	insertExplore();
 	updateExplore();
@@ -1924,7 +1926,7 @@ public abstract class JobsDAO {
     /**
      * Save player-job information
      * @param jobInfo - the information getting saved
-     * @return 
+     * @return
      */
     public List<Integer> getLognameList(int fromtime, int untiltime) {
 	JobsConnection conn = getConnection();
@@ -1954,7 +1956,7 @@ public abstract class JobsDAO {
     /**
      * Show top list
      * @param toplist - toplist by jobs name
-     * @return 
+     * @return
      */
     public ArrayList<TopList> toplist(String jobsname) {
 	return toplist(jobsname, 0);
@@ -1963,7 +1965,7 @@ public abstract class JobsDAO {
     /**
      * Show top list
      * @param toplist - toplist by jobs name
-     * @return 
+     * @return
      */
     public ArrayList<TopList> toplist(String jobsname, int limit) {
 	ArrayList<TopList> jobs = new ArrayList<>();
@@ -2044,11 +2046,11 @@ public abstract class JobsDAO {
     /**
      * Get a database connection
      * @return  DBConnection object
-     * @throws SQLException 
+     * @throws SQLException
      */
     protected JobsConnection getConnection() {
 	try {
-	    return pool.getConnection();
+	    return isConnected() ? pool.getConnection() : null;
 	} catch (SQLException e) {
 	    Jobs.getPluginLogger().severe("Unable to connect to the database: " + e.getMessage());
 	    return null;

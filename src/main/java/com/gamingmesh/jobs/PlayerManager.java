@@ -1,17 +1,17 @@
 /**
  * Jobs Plugin for Bukkit
  * Copyright (C) 2011 Zak Ford <zak.j.ford@gmail.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -215,7 +215,7 @@ public class PlayerManager {
     public void saveAll() {
 	/*
 	 * Saving is a three step process to minimize synchronization locks when called asynchronously.
-	 * 
+	 *
 	 * 1) Safely copy list for saving.
 	 * 2) Perform save on all players on copied list.
 	 * 3) Garbage collect the real list to remove any offline players with saved data
@@ -292,7 +292,7 @@ public class PlayerManager {
 
     /**
      * Get the player job info for specific player
-     * @param archivedJobs 
+     * @param archivedJobs
      * @param player - the player who's job you're getting
      * @return the player job info of the player
      */
@@ -528,6 +528,36 @@ public class PlayerManager {
 	JobProgression prog = jPlayer.getJobProgression(job);
 	if (prog == null)
 	    return;
+
+	// when the player loses income
+	if (prog.getLevel() < oldLevel) {
+	    String message = Jobs.getLanguage().getMessage("message.leveldown.message");
+
+	    message = message.replace("%jobname%", job.getChatColor() + job.getName());
+
+	    if (player != null)
+		message = message.replace("%playername%", player.getDisplayName());
+	    else
+		message = message.replace("%playername%", jPlayer.getUserName());
+
+	    message = message.replace("%joblevel%", "" + prog.getLevel());
+
+	    if (player != null) {
+		for (String line : message.split("\n")) {
+		    if (Jobs.getGCManager().LevelChangeActionBar)
+			Jobs.getActionBar().send(player, line);
+		    if (Jobs.getGCManager().LevelChangeChat)
+			player.sendMessage(line);
+		}
+		}
+
+	    jPlayer.reloadHonorific();
+	    Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
+	    performCommandOnLevelUp(jPlayer, prog.getJob(), oldLevel);
+	    Jobs.getSignUtil().SignUpdate(job.getName());
+	    Jobs.getSignUtil().SignUpdate("gtoplist");
+	    return;
+	}
 
 	// LevelUp event
 	JobsLevelUpEvent levelUpEvent = new JobsLevelUpEvent(

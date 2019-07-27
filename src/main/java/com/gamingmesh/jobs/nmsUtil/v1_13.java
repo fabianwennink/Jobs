@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -40,7 +39,7 @@ public class v1_13 implements NMS {
 
     @Override
     public double getMaxHealth(LivingEntity entity) {
-	return entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue();
+	return entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
     }
 
     @Override

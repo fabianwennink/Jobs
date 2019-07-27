@@ -23,6 +23,7 @@ public class Quest {
 
     private List<String> rewardCmds = new ArrayList<>();
     private List<String> rewards = new ArrayList<>();
+    private List<String> area = new ArrayList<>();
 
     private HashMap<String, QuestObjective> objectives = new HashMap<>();
     private Set<ActionType> actions = new HashSet<>();
@@ -46,6 +47,14 @@ public class Quest {
 
     public void setDescription(List<String> rewards) {
 	this.rewards = rewards;
+    }
+
+    public List<String> getRestrictedAreas() {
+	return area;
+    }
+
+    public void setRestrictedArea(List<String> area) {
+	this.area = area;
     }
 
     public Long getValidUntil() {
@@ -159,7 +168,7 @@ public class Quest {
     }
 
     public void addObjective(QuestObjective objective) {
-	this.objectives.put(objective.getTargetName(), objective); 
+	this.objectives.put(objective.getTargetName(), objective);
 	actions.add(objective.getAction());
     }
 
